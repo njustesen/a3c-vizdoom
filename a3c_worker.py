@@ -7,6 +7,7 @@ import tensorflow.contrib.slim as slim
 import scipy.signal
 import a3c_helpers
 import a3c_network
+import a3c_constants as constants
 
 from helper import *
 from vizdoom import *
@@ -28,7 +29,7 @@ class Worker():
         self.episode_mean_values = []
         self.summary_writer = tf.summary.FileWriter("train_" + str(self.number))
 
-        self.bots = 7
+        self.bots = constants.BOTS
 
         # Create the local copy of the network and the tensorflow op to copy global paramters to local network
         self.local_AC = a3c_network.AC_Network(s_size, a_size, self.name, trainer)
@@ -45,11 +46,11 @@ class Worker():
 
         game.set_screen_resolution(ScreenResolution.RES_160X120)
         game.set_screen_format(ScreenFormat.GRAY8)
-        game.set_render_hud(False)
-        game.set_render_crosshair(False)
-        game.set_render_weapon(True)
-        game.set_render_decals(False)
-        game.set_render_particles(False)
+        game.set_render_hud(constants.RENDER_HUD)
+        game.set_render_crosshair(constants.RENDER_CROSSHAIR)
+        game.set_render_weapon(constants.RENDER_WEAPON)
+        game.set_render_decals(constants.RENDER_DECALS)
+        game.set_render_particles(constants.RENDER_PARTICLES)
         #game.add_available_button(Button.MOVE_LEFT)
         #game.add_available_button(Button.MOVE_RIGHT)
         #game.add_available_button(Button.TURN_LEFT)
@@ -59,11 +60,11 @@ class Worker():
         game.add_available_game_variable(GameVariable.POSITION_X)
         game.add_available_game_variable(GameVariable.POSITION_Y)
         #game.set_episode_timeout(300)
-        game.set_episode_timeout(25200)
-        game.set_episode_start_time(10)
-        game.set_window_visible(True)
-        game.set_sound_enabled(False)
-        game.set_living_reward(-1)
+        game.set_episode_timeout(constants.EPISODE_TIMEOUT)
+        game.set_episode_start_time(constants.EPISODE_START_TIME)
+        game.set_window_visible(constants.WINDOW_VISIBLE)
+        game.set_sound_enabled(constants.SOUND_ENABLED)
+        #game.set_living_reward(-1)
         game.set_mode(Mode.PLAYER)
         # game.set_mode(Mode.ASYNC_PLAYER)
         game.init()
@@ -213,6 +214,9 @@ class Worker():
                     self.summary_writer.add_summary(summary, episode_count)
 
                     self.summary_writer.flush()
+
+                    print("EPISODE: " + str(episode_count) + " | MEAN REWARD: " + str(mean_reward) + " | MEAN VALUE: " + str(mean_value))
+
                 if self.name == 'worker_0':
                     sess.run(self.increment)
                 episode_count += 1

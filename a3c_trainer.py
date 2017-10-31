@@ -8,6 +8,7 @@ import scipy.signal
 import a3c_helpers
 from a3c_network import AC_Network
 from a3c_worker import Worker
+import a3c_constants as constants
 
 from helper import *
 from vizdoom import *
@@ -16,12 +17,11 @@ from random import choice
 from time import sleep
 from time import time
 
-max_episode_length = 25200
-gamma = .99 # discount rate for advantage estimation and reward discounting
-s_size = 7056 # Observations are greyscale frames of 84 * 84 * 1
-a_size = 7 # Agent can move Left, Right, or Fire
-load_model = False
-model_path = './model'
+gamma = constants.GAMMA # discount rate for advantage estimation and reward discounting
+s_size = constants.OBSERVATION_SIZE # Observations are greyscale frames of 84 * 84 * 1
+a_size = constants.ACTIONS_SIZE # Agents actions are found in the config
+load_model = constants.LOAD_MODEL
+model_path = constants.MODEL_PATH
 
 tf.reset_default_graph()
 
@@ -56,7 +56,7 @@ with tf.Session() as sess:
     # Start the "work" process for each worker in a separate threat.
     worker_threads = []
     for worker in workers:
-        worker_work = lambda: worker.work(max_episode_length, gamma, sess, coord, saver)
+        worker_work = lambda: worker.work(constants.EPISODE_TIMEOUT, gamma, sess, coord, saver)
         t = threading.Thread(target=(worker_work))
         t.start()
         sleep(0.5)
