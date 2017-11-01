@@ -49,7 +49,10 @@ class Worker():
                            "+sv_forcerespawn 1 +sv_noautoaim 1 +sv_respawnprotect 1 +sv_spawnfarthest 1")
 
         game.set_screen_resolution(ScreenResolution.RES_160X120)
-        game.set_screen_format(ScreenFormat.GRAY8)
+        if constants.FRAME_SIZE[2] == 1:
+            game.set_screen_format(ScreenFormat.GRAY8)
+        else:
+            game.set_screen_format(ScreenFormat.RGB24)
         game.set_render_hud(constants.RENDER_HUD)
         game.set_render_crosshair(constants.RENDER_CROSSHAIR)
         game.set_render_weapon(constants.RENDER_WEAPON)

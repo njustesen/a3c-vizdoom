@@ -20,7 +20,7 @@ class AC_Network():
         with tf.variable_scope(scope):
             self.input_image = tf.placeholder(shape=[None, s_size], dtype=tf.float32)
             self.input_goals = tf.placeholder(shape=[None, a3c_constants.GOAL_SIZE], dtype=tf.float32)
-            self.imageIn = tf.reshape(self.input_image, shape=[-1, 84, 84, 1])
+            self.imageIn = tf.reshape(self.input_image, shape=[-1, a3c_constants.FRAME_SIZE[0], a3c_constants.FRAME_SIZE[1], a3c_constants.FRAME_SIZE[2]])
 
             '''
             # Input and visual encoding layers

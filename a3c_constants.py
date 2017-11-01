@@ -1,8 +1,11 @@
 # To launch tensorboard in dir tensorboard --logdir=./
 
+import numpy as np
+
 # TRAINING CONSTANTS
 GAMMA = 0.99
-OBSERVATION_SIZE = 84*84
+FRAME_SIZE = [84,84,1]
+OBSERVATION_SIZE = np.product(FRAME_SIZE)
 ACTIONS_SIZE = 7
 LOAD_MODEL = False
 MODEL_PATH = './model'
@@ -10,6 +13,7 @@ POSITION_DECAY = 0.9
 BATCH_SIZE = 64
 FRAME_SKIP = 4
 GOAL_SIZE = 16
+MAX_THREADS = 1
 
 # VIZDOOM CONSTANTS
 BOTS = 7
