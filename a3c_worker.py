@@ -19,7 +19,7 @@ from time import sleep
 from time import time
 
 class Worker():
-    def __init__(self, game, name, s_size, a_size, trainer, model_path, global_episodes):
+    def __init__(self, game, name, trainer, model_path, global_episodes):
         self.name = "worker_" + str(name)
         self.number = name
         self.model_path = model_path
@@ -34,7 +34,7 @@ class Worker():
         self.bots = constants.BOTS
 
         # Create the local copy of the network and the tensorflow op to copy global paramters to local network
-        self.local_AC = a3c_network.AC_Network(s_size, a_size, self.name, trainer)
+        self.local_AC = a3c_network.AC_Network(self.name, trainer)
         self.update_local_ops = a3c_helpers.update_target_graph('global', self.name)
 
         # The Below code is related to setting up the Doom environment
@@ -48,7 +48,7 @@ class Worker():
         game.add_game_args("-host 1 -deathmatch +timelimit 2.0 "
                            "+sv_forcerespawn 1 +sv_noautoaim 1 +sv_respawnprotect 1 +sv_spawnfarthest 1")
 
-        game.set_screen_resolution(ScreenResolution.RES_160X120)
+        game.set_screen_resolution(constants.SCREEN_RESOLUTION)
         if constants.FRAME_SIZE[2] == 1:
             game.set_screen_format(ScreenFormat.GRAY8)
         else:
@@ -95,7 +95,7 @@ class Worker():
         for i in range(self.bots):
             game.send_game_command("addbot")
 
-        self.actions = self.actions = np.identity(a_size, dtype=bool).tolist()
+        self.actions = self.actions = np.identity(constants.ACTIONS_SIZE, dtype=bool).tolist()
         # End Doom set-up
         self.env = game
 

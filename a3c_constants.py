@@ -1,10 +1,10 @@
 # To launch tensorboard in dir tensorboard --logdir=./
-
+from vizdoom import *
 import numpy as np
 
 # TRAINING CONSTANTS
 GAMMA = 0.99
-FRAME_SIZE = [84,84,1]
+FRAME_SIZE = [120,120,1]
 OBSERVATION_SIZE = np.product(FRAME_SIZE)
 ACTIONS_SIZE = 7
 LOAD_MODEL = False
@@ -13,9 +13,10 @@ POSITION_DECAY = 0.9
 BATCH_SIZE = 64
 FRAME_SKIP = 4
 GOAL_SIZE = 16
-MAX_THREADS = 1
+MAX_THREADS = 16
 
 # VIZDOOM CONSTANTS
+SCREEN_RESOLUTION = ScreenResolution.RES_160X120
 BOTS = 7
 RENDER_HUD = False
 RENDER_CROSSHAIR = False

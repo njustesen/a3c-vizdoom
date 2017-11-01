@@ -35,14 +35,14 @@ if not os.path.exists('./frames'):
 with tf.device("/cpu:0"):
     global_episodes = tf.Variable(0, dtype=tf.int32, name='global_episodes', trainable=False)
     trainer = tf.train.AdamOptimizer(learning_rate=1e-4)
-    master_network = AC_Network(s_size, a_size, 'global', None)  # Generate global network
+    master_network = AC_Network('global', None)  # Generate global network
     num_workers = multiprocessing.cpu_count()  # Set workers to number of available CPU threads
     if constants.MAX_THREADS != -1:
         num_workers = constants.MAX_THREADS  # Set workers to max threads
     workers = []
     # Create worker classes
     for i in range(num_workers):
-        workers.append(Worker(DoomGame(), i, s_size, a_size, trainer, model_path, global_episodes))
+        workers.append(Worker(DoomGame(), i, trainer, model_path, global_episodes))
     saver = tf.train.Saver(max_to_keep=5)
 
 with tf.Session() as sess:

@@ -16,9 +16,9 @@ from time import sleep
 from time import time
 
 class AC_Network():
-    def __init__(self, s_size, a_size, scope, trainer):
+    def __init__(self, scope, trainer):
         with tf.variable_scope(scope):
-            self.input_image = tf.placeholder(shape=[None, s_size], dtype=tf.float32)
+            self.input_image = tf.placeholder(shape=[None, a3c_constants.OBSERVATION_SIZE], dtype=tf.float32)
             self.input_goals = tf.placeholder(shape=[None, a3c_constants.GOAL_SIZE], dtype=tf.float32)
             self.imageIn = tf.reshape(self.input_image, shape=[-1, a3c_constants.FRAME_SIZE[0], a3c_constants.FRAME_SIZE[1], a3c_constants.FRAME_SIZE[2]])
 
@@ -66,7 +66,7 @@ class AC_Network():
             rnn_out = tf.reshape(lstm_outputs, [-1, 512])
 
             # Output layers for policy and value estimations
-            self.policy = slim.fully_connected(rnn_out, a_size,
+            self.policy = slim.fully_connected(rnn_out, a3c_constants.ACTIONS_SIZE,
                                                activation_fn=tf.nn.softmax,
                                                weights_initializer=a3c_helpers.normalized_columns_initializer(0.01),
                                                biases_initializer=None)
@@ -78,7 +78,7 @@ class AC_Network():
             # Only the worker network need ops for loss functions and gradient updating.
             if scope != 'global':
                 self.actions = tf.placeholder(shape=[None], dtype=tf.int32)
-                self.actions_onehot = tf.one_hot(self.actions, a_size, dtype=tf.float32)
+                self.actions_onehot = tf.one_hot(self.actions, a3c_constants.ACTIONS_SIZE, dtype=tf.float32)
                 self.target_v = tf.placeholder(shape=[None], dtype=tf.float32)
                 self.advantages = tf.placeholder(shape=[None], dtype=tf.float32)
 
