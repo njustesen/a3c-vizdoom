@@ -2,16 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d7be08bc-4354-4d61-b19d-240c3c2ffa45" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/scenarios/basic_cig.cfg" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/scenarios/basic_cig.wad" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/frames/image25.gif" afterPath="$PROJECT_DIR$/frames/image25.gif" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_vizdoom.ini" afterPath="$PROJECT_DIR$/_vizdoom.ini" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/frames/image50.gif" afterPath="$PROJECT_DIR$/frames/image50.gif" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_constants.py" afterPath="$PROJECT_DIR$/a3c_constants.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_helpers.py" afterPath="$PROJECT_DIR$/a3c_helpers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_network.py" afterPath="$PROJECT_DIR$/a3c_network.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_trainer.py" afterPath="$PROJECT_DIR$/a3c_trainer.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_worker.py" afterPath="$PROJECT_DIR$/a3c_worker.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train_0/events.out.tfevents.1509532850.niels-ubuntu" afterPath="$PROJECT_DIR$/train_0/events.out.tfevents.1509532850.niels-ubuntu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train_1/events.out.tfevents.1509532850.niels-ubuntu" afterPath="$PROJECT_DIR$/train_1/events.out.tfevents.1509532850.niels-ubuntu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train_2/events.out.tfevents.1509532849.niels-ubuntu" afterPath="$PROJECT_DIR$/train_2/events.out.tfevents.1509532849.niels-ubuntu" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train_3/events.out.tfevents.1509532857.niels-ubuntu" afterPath="$PROJECT_DIR$/train_3/events.out.tfevents.1509532857.niels-ubuntu" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -32,7 +29,7 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="a3c_trainer.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="a3c_trainer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3c_trainer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="570">
@@ -48,7 +45,7 @@
         <entry file="file://$PROJECT_DIR$/a3c_constants.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="315">
-              <caret line="21" column="21" lean-forward="false" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
+              <caret line="21" column="1" lean-forward="false" selection-start-line="21" selection-start-column="1" selection-end-line="21" selection-end-column="1" />
               <folding />
             </state>
           </provider>
@@ -66,11 +63,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="a3c_worker.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="a3c_worker.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/a3c_worker.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="426">
-              <caret line="41" column="45" lean-forward="false" selection-start-line="41" selection-start-column="45" selection-end-line="41" selection-end-column="45" />
+            <state relative-caret-position="441">
+              <caret line="43" column="47" lean-forward="false" selection-start-line="43" selection-start-column="47" selection-end-line="43" selection-end-column="47" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -139,10 +136,10 @@
         <option value="$PROJECT_DIR$/a3c_reward_function.py" />
         <option value="$PROJECT_DIR$/a3c_helpers.py" />
         <option value="$PROJECT_DIR$/a3c_network.py" />
-        <option value="$PROJECT_DIR$/a3c_worker.py" />
         <option value="$PROJECT_DIR$/scenarios/basic_cig.cfg" />
-        <option value="$PROJECT_DIR$/a3c_constants.py" />
         <option value="$PROJECT_DIR$/a3c_trainer.py" />
+        <option value="$PROJECT_DIR$/a3c_constants.py" />
+        <option value="$PROJECT_DIR$/a3c_worker.py" />
       </list>
     </option>
   </component>
@@ -551,22 +548,22 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/a3c_worker.py</url>
-          <line>127</line>
+          <line>126</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/a3c_worker.py</url>
-          <line>148</line>
+          <line>147</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/a3c_worker.py</url>
-          <line>78</line>
+          <line>77</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/a3c_worker.py</url>
-          <line>184</line>
+          <line>183</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>
@@ -956,26 +953,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3c_network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="46" column="74" lean-forward="false" selection-start-line="46" selection-start-column="74" selection-end-line="46" selection-end-column="74" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/a3c_worker.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="41" column="45" lean-forward="false" selection-start-line="41" selection-start-column="45" selection-end-line="41" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#16#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/scenarios/basic_cig.cfg">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -987,8 +964,18 @@
     <entry file="file://$PROJECT_DIR$/a3c_constants.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="315">
-          <caret line="21" column="21" lean-forward="false" selection-start-line="21" selection-start-column="21" selection-end-line="21" selection-end-column="21" />
+          <caret line="21" column="1" lean-forward="false" selection-start-line="21" selection-start-column="1" selection-end-line="21" selection-end-column="1" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3c_network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="46" column="74" lean-forward="false" selection-start-line="46" selection-start-column="74" selection-end-line="46" selection-end-column="74" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -996,6 +983,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="570">
           <caret line="38" column="4" lean-forward="false" selection-start-line="38" selection-start-column="4" selection-end-line="38" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#16#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a3c_worker.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="43" column="47" lean-forward="false" selection-start-line="43" selection-start-column="47" selection-end-line="43" selection-end-column="47" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>

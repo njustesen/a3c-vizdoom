@@ -38,16 +38,15 @@ class Worker():
         self.update_local_ops = a3c_helpers.update_target_graph('global', self.name)
 
         # The Below code is related to setting up the Doom environment
-        game.set_doom_scenario_path("scenarios/basic_cig.wad")  # This corresponds to the simple task we will pose our agent
-        game.load_config("scenarios/basic_cig.cfg")
-        '''
+        #game.set_doom_scenario_path("scenarios/basic_cig.wad")  # This corresponds to the simple task we will pose our agent
+        #game.load_config("scenarios/basic_cig.cfg")
+
+        game.set_doom_scenario_path("scenarios/cig.wad")  # This corresponds to the simple task we will pose our agent
         game.load_config("scenarios/cig.cfg")
         game.set_doom_map("map02")
         game.add_game_args("+name AI +colorset 0")
         game.add_game_args("-host 1 -deathmatch +timelimit 2.0 "
                            "+sv_forcerespawn 1 +sv_noautoaim 1 +sv_respawnprotect 1 +sv_spawnfarthest 1")
-        '''
-
 
         game.set_screen_resolution(ScreenResolution.RES_160X120)
         game.set_screen_format(ScreenFormat.GRAY8)
@@ -88,11 +87,11 @@ class Worker():
         game.set_mode(Mode.PLAYER)
         # game.set_mode(Mode.ASYNC_PLAYER)
         game.init()
-        '''
+
         game.send_game_command("removebots")
         for i in range(self.bots):
             game.send_game_command("addbot")
-        '''
+
         self.actions = self.actions = np.identity(a_size, dtype=bool).tolist()
         # End Doom set-up
         self.env = game
