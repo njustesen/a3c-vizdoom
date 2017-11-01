@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import scipy.signal
+from tensorflow.python.ops.gen_array_ops import _const
+
 import a3c_helpers
 import a3c_network
 import a3c_constants as constants
@@ -36,13 +38,16 @@ class Worker():
         self.update_local_ops = a3c_helpers.update_target_graph('global', self.name)
 
         # The Below code is related to setting up the Doom environment
-        #game.set_doom_scenario_path("scenarios/cig.wad")  # This corresponds to the simple task we will pose our agent
+        game.set_doom_scenario_path("scenarios/basic_cig.wad")  # This corresponds to the simple task we will pose our agent
+        game.load_config("scenarios/basic_cig.cfg")
+        '''
         game.load_config("scenarios/cig.cfg")
         game.set_doom_map("map02")
-
         game.add_game_args("+name AI +colorset 0")
         game.add_game_args("-host 1 -deathmatch +timelimit 2.0 "
                            "+sv_forcerespawn 1 +sv_noautoaim 1 +sv_respawnprotect 1 +sv_spawnfarthest 1")
+        '''
+
 
         game.set_screen_resolution(ScreenResolution.RES_160X120)
         game.set_screen_format(ScreenFormat.GRAY8)
@@ -56,9 +61,24 @@ class Worker():
         #game.add_available_button(Button.TURN_LEFT)
         #game.add_available_button(Button.TURN_RIGHT)
         #game.add_available_button(Button.ATTACK)
+        game.add_available_game_variable(GameVariable.AMMO0)
+        game.add_available_game_variable(GameVariable.AMMO1)
         game.add_available_game_variable(GameVariable.AMMO2)
+        game.add_available_game_variable(GameVariable.AMMO3)
+        game.add_available_game_variable(GameVariable.AMMO4)
+        game.add_available_game_variable(GameVariable.AMMO5)
+        game.add_available_game_variable(GameVariable.AMMO6)
+        game.add_available_game_variable(GameVariable.AMMO7)
+        game.add_available_game_variable(GameVariable.AMMO8)
+        game.add_available_game_variable(GameVariable.AMMO9)
         game.add_available_game_variable(GameVariable.POSITION_X)
         game.add_available_game_variable(GameVariable.POSITION_Y)
+        game.add_available_game_variable(GameVariable.ON_GROUND)
+        game.add_available_game_variable(GameVariable.KILLCOUNT)
+        game.add_available_game_variable(GameVariable.DEATHCOUNT)
+        game.add_available_game_variable(GameVariable.ARMOR)
+        game.add_available_game_variable(GameVariable.FRAGCOUNT)
+        game.add_available_game_variable(GameVariable.HEALTH)
         #game.set_episode_timeout(300)
         game.set_episode_timeout(constants.EPISODE_TIMEOUT)
         game.set_episode_start_time(constants.EPISODE_START_TIME)
@@ -68,14 +88,19 @@ class Worker():
         game.set_mode(Mode.PLAYER)
         # game.set_mode(Mode.ASYNC_PLAYER)
         game.init()
-
+        '''
         game.send_game_command("removebots")
         for i in range(self.bots):
             game.send_game_command("addbot")
-
+        '''
         self.actions = self.actions = np.identity(a_size, dtype=bool).tolist()
         # End Doom set-up
         self.env = game
+
+        # Reward function - Shaped
+        #self.reward_function = [0.01,0.01,0,-1,1,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
+        # Reward function - Frags
+        self.goals = [0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def train(self, rollout, sess, gamma, bootstrap_value):
         rollout = np.array(rollout)
@@ -94,10 +119,15 @@ class Worker():
         advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
         advantages = a3c_helpers.discount(advantages, gamma)
 
+        goals = []
+        for i in range(len(observations)):
+            goals.append(self.goals)
+
         # Update the global network using gradients from loss
         # Generate network statistics to periodically save
         feed_dict = {self.local_AC.target_v: discounted_rewards,
-                     self.local_AC.inputs: np.vstack(observations),
+                     self.local_AC.input_image: np.vstack(observations),
+                     self.local_AC.input_goals: goals,
                      self.local_AC.actions: actions,
                      self.local_AC.advantages: advantages,
                      self.local_AC.state_in[0]: self.batch_rnn_state[0],
@@ -127,6 +157,8 @@ class Worker():
                 d = False
 
                 self.env.new_episode()
+                position_history = []
+                last_vars = a3c_helpers.get_vizdoom_vars(self.env, position_history)
                 s = self.env.get_state().screen_buffer
                 episode_frames.append(s)
                 s = a3c_helpers.process_frame(s)
@@ -138,16 +170,26 @@ class Worker():
                     if self.env.is_player_dead():
                         self.env.respawn_player()
 
+                    position = a3c_helpers.get_position(self.env)
+                    position_history.append(position)
+
                     # Take an action using probabilities from policy network output.
                     a_dist, v, rnn_state = sess.run(
                         [self.local_AC.policy, self.local_AC.value, self.local_AC.state_out],
-                        feed_dict={self.local_AC.inputs: [s],
+                        feed_dict={self.local_AC.input_image: [s],
+                                   self.local_AC.input_goals: [self.goals],
                                    self.local_AC.state_in[0]: rnn_state[0],
                                    self.local_AC.state_in[1]: rnn_state[1]})
                     a = np.random.choice(a_dist[0], p=a_dist[0])
                     a = np.argmax(a_dist == a)
+                    r = self.env.make_action(self.actions[a], constants.FRAME_SKIP) / 100.0
 
-                    r = self.env.make_action(self.actions[a]) / 100.0
+                    # Evaluate reward based on vars and reward function
+                    vars = a3c_helpers.get_vizdoom_vars(self.env, position_history)
+                    delta_vars = np.subtract(vars, last_vars)
+                    rewards = np.multiply(self.goals, delta_vars)
+                    r = np.sum(rewards)
+                    last_vars = vars
 
                     d = self.env.is_episode_finished()
                     if d == False:
@@ -167,11 +209,12 @@ class Worker():
 
                     # If the episode hasn't ended, but the experience buffer is full, then we
                     # make an update step using that experience rollout.
-                    if len(episode_buffer) == 30 and d != True and episode_step_count != max_episode_length - 1:
+                    if len(episode_buffer) == constants.BATCH_SIZE and d != True and episode_step_count != max_episode_length - 1:
                         # Since we don't know what the true final return is, we "bootstrap" from our current
                         # value estimation.
                         v1 = sess.run(self.local_AC.value,
-                                      feed_dict={self.local_AC.inputs: [s],
+                                      feed_dict={self.local_AC.input_image: [s],
+                                                 self.local_AC.input_goals: [self.goals],
                                                  self.local_AC.state_in[0]: rnn_state[0],
                                                  self.local_AC.state_in[1]: rnn_state[1]})[0, 0]
                         v_l, p_l, e_l, g_n, v_n = self.train(episode_buffer, sess, gamma, v1)
