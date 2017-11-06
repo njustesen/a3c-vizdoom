@@ -37,32 +37,13 @@ with tf.device("/cpu:0"):
     global_episodes = tf.Variable(0, dtype=tf.int32, name='global_episodes', trainable=False)
     trainer = tf.train.AdamOptimizer(learning_rate=1e-4)
     master_network = AC_Network('global', None)  # Generate global network
-    num_workers = multiprocessing.cpu_count()  # Set workers to number of available CPU threads
-    if constants.MAX_THREADS != -1:
-        num_workers = min(num_workers, constants.MAX_THREADS) # Set workers to max threads
-    ga = ga.GA(num_workers)
-    workers = []
-    # Create worker classes
-    for i in range(num_workers):
-        workers.append(Worker(DoomGame(), i, trainer, model_path, global_episodes, ga))
-    saver = tf.train.Saver(max_to_keep=1)
+    saver = tf.train.Saver(max_to_keep=5)
 
 with tf.Session() as sess:
-    coord = tf.train.Coordinator()
-    if load_model == True:
-        print('Loading Model...')
-        ckpt = tf.train.get_checkpoint_state(model_path)
-        saver.restore(sess, ckpt.model_checkpoint_path)
-    else:
-        sess.run(tf.global_variables_initializer())
+    print('Loading Model...')
+    ckpt = tf.train.get_checkpoint_state(model_path)
+    saver.restore(sess, ckpt.model_checkpoint_path)
 
-    # This is where the asynchronous magic happens.
-    # Start the "work" process for each worker in a separate threat.
-    worker_threads = []
-    for worker in workers:
-        worker_work = lambda: worker.work(constants.EPISODE_TIMEOUT, gamma, sess, coord, saver)
-        t = threading.Thread(target=(worker_work))
-        t.start()
-        sleep(0.5)
-        worker_threads.append(t)
-    coord.join(worker_threads)
+    worker = Worker(DoomGame(), 0, trainer, model_path, global_episodes, ga)
+    for i in range(10):
+        worker.showcase(sess)

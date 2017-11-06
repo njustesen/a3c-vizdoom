@@ -45,10 +45,10 @@ class AC_Network():
 
             self.conv_flat = slim.flatten(self.conv3)
             self.concat = tf.concat([self.conv_flat, self.input_goals], 1)
-            self.hidden = slim.fully_connected(self.concat, 512, activation_fn=tf.nn.elu)
+            self.hidden = slim.fully_connected(self.concat, 1024, activation_fn=tf.nn.elu)
 
             # Recurrent network for temporal dependencies
-            lstm_cell = tf.contrib.rnn.BasicLSTMCell(512, state_is_tuple=True)
+            lstm_cell = tf.contrib.rnn.BasicLSTMCell(1024, state_is_tuple=True)
             c_init = np.zeros((1, lstm_cell.state_size.c), np.float32)
             h_init = np.zeros((1, lstm_cell.state_size.h), np.float32)
             self.state_init = [c_init, h_init]
@@ -63,7 +63,7 @@ class AC_Network():
                 time_major=False)
             lstm_c, lstm_h = lstm_state
             self.state_out = (lstm_c[:1, :], lstm_h[:1, :])
-            rnn_out = tf.reshape(lstm_outputs, [-1, 512])
+            rnn_out = tf.reshape(lstm_outputs, [-1, 1024])
 
             # Output layers for policy and value estimations
             self.policy = slim.fully_connected(rnn_out, a3c_constants.ACTIONS_SIZE,
