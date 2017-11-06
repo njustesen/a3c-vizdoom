@@ -20,7 +20,7 @@ from time import sleep
 from time import time
 
 class Worker():
-    def __init__(self, game, name, trainer, model_path, global_episodes, ga):
+    def __init__(self, game, name, trainer, model_path, global_episodes):
         self.name = "worker_" + str(name)
         self.number = name
         self.model_path = model_path
@@ -31,7 +31,6 @@ class Worker():
         self.episode_lengths = []
         self.episode_mean_values = []
         self.summary_writer = tf.summary.FileWriter("train_" + str(self.number))
-        self.ga = ga
         self.genome = None
 
         self.bots = constants.BOTS
@@ -103,7 +102,7 @@ class Worker():
         self.env = game
 
         # Reward function - Shaped
-        self.goals = [0.01,0.01,0,-1,1,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
+        #self.goals = [0.01,0.01,0,-1,1,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01]
         # Reward function - Frags
         #self.goals = [0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         # Reward function - movement
@@ -154,6 +153,7 @@ class Worker():
         total_steps = 0
         print("Starting worker " + str(self.number))
 
+        start = time()
         with sess.as_default(), sess.graph.as_default():
             while not coord.should_stop():
                 sess.run(self.update_local_ops)
@@ -164,12 +164,8 @@ class Worker():
                 episode_step_count = 0
                 d = False
 
-                # Get genome
-                self.genome = self.ga.get_indiviual()
-                self.goals = self.genome.genotype
-
                 self.env.new_episode()
-                position_history = []
+                position_history = [a3c_helpers.get_position(self.env)]
                 last_vars = a3c_helpers.get_vizdoom_vars(self.env, position_history)
                 s = self.env.get_state().screen_buffer
                 episode_frames.append(s)
@@ -182,9 +178,6 @@ class Worker():
                     if self.env.is_player_dead():
                         self.env.respawn_player()
 
-                    position = a3c_helpers.get_position(self.env)
-                    position_history.append(position)
-
                     # Take an action using probabilities from policy network output.
                     a_dist, v, rnn_state = sess.run(
                         [self.local_AC.policy, self.local_AC.value, self.local_AC.state_out],
@@ -195,6 +188,8 @@ class Worker():
                     a = np.random.choice(a_dist[0], p=a_dist[0])
                     a = np.argmax(a_dist == a)
                     r = self.env.make_action(self.actions[a], constants.FRAME_SKIP) / 100.0
+
+                    position_history.append(a3c_helpers.get_position(self.env))
 
                     # Evaluate reward based on vars and reward function
                     vars = a3c_helpers.get_vizdoom_vars(self.env, position_history)
@@ -244,13 +239,8 @@ class Worker():
                     v_l, p_l, e_l, g_n, v_n = self.train(episode_buffer, sess, gamma, 0.0)
 
                 # Periodically save gifs of episodes, model parameters, and summary statistics.
-                if episode_count % 5 == 0 and episode_count != 0:
-                    if self.name == 'worker_0' and episode_count % 25 == 0:
-                        time_per_step = 0.05
-                        images = np.array(episode_frames)
-                        make_gif(images, './frames/image' + str(episode_count) + '.gif',
-                                 duration=len(images) * time_per_step, true_image=True, salience=False)
-                    if episode_count % 250 == 0 and self.name == 'worker_0':
+                if episode_count != 0 and episode_count % 5 == 0:
+                    if episode_count % 50 == 0 and self.name == 'worker_0':
                         saver.save(sess, self.model_path + '/model-' + str(episode_count) + '.cptk')
                         print("Saved Model")
 
@@ -272,12 +262,12 @@ class Worker():
 
                     print("EPISODE: " + str(episode_count) + " | MEAN REWARD: " + str(mean_reward) + " | MEAN VALUE: " + str(mean_value))
 
-                # Return fitness to genome
-                self.ga.evaluate(self.genome, fitness=np.mean(self.episode_rewards[-1:]))
-
                 if self.name == 'worker_0':
                     sess.run(self.increment)
                 episode_count += 1
+
+                now = time()
+                #print("Time spent: " + str((now - start)))
 
     def showcase(self, sess):
 

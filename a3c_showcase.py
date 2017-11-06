@@ -44,6 +44,6 @@ with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(model_path)
     saver.restore(sess, ckpt.model_checkpoint_path)
 
-    worker = Worker(DoomGame(), 0, trainer, model_path, global_episodes, ga)
+    worker = Worker(DoomGame(), 0, trainer, model_path, global_episodes)
     for i in range(10):
         worker.showcase(sess)

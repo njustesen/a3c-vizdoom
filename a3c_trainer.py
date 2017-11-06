@@ -40,11 +40,10 @@ with tf.device("/cpu:0"):
     num_workers = multiprocessing.cpu_count()  # Set workers to number of available CPU threads
     if constants.MAX_THREADS != -1:
         num_workers = min(num_workers, constants.MAX_THREADS) # Set workers to max threads
-    ga = ga.GA(num_workers)
     workers = []
     # Create worker classes
     for i in range(num_workers):
-        workers.append(Worker(DoomGame(), i, trainer, model_path, global_episodes, ga))
+        workers.append(Worker(DoomGame(), i, trainer, model_path, global_episodes))
     saver = tf.train.Saver(max_to_keep=1)
 
 with tf.Session() as sess:

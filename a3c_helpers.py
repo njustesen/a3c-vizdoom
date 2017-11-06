@@ -51,17 +51,32 @@ def normalized_columns_initializer(std=1.0):
         return tf.constant(out)
     return _initializer
 
-def movement_reward(position, position_history):
+def movement_reward(position_history):
     reward = 0
     idx = 0
-    n = 0
+    last_position = None
     for p in reversed(position_history):
-        distance = math.sqrt((position[0] - p[0]) ** 2 + (position[1] - p[1]) ** 2) / 100
-        decay = a3c_constants.POSITION_DECAY ** (idx+1)
-        n += decay
-        reward += decay * distance
-        idx += 1
-    return reward / max(1,n)
+        if last_position is not None:
+            distance = math.sqrt((p[0] - last_position[0]) ** 2 + (p[1] - last_position[1]) ** 2) / 10
+            decay = a3c_constants.POSITION_DECAY ** idx
+            reward += decay * distance
+            idx += 1
+        last_position = p
+    return reward / max(1,idx)
+
+def meters_walked(position_history):
+    meters = 0
+    last_position = None
+    for p in position_history:
+        if last_position is None:
+            last_position = p
+        else:
+            distance = math.sqrt((p[0] - last_position[0]) ** 2 + (p[1] - last_position[1]) ** 2) / 100
+            if distance > 1:
+                meters += 1
+                last_position = p
+
+    return meters
 
 def get_position(vizdoom):
     return [vizdoom.get_game_variable(GameVariable.POSITION_X), vizdoom.get_game_variable(GameVariable.POSITION_Y)]
@@ -83,7 +98,7 @@ def get_vizdoom_vars(vizdoom, position_history):
     vars.append(vizdoom.get_game_variable(GameVariable.AMMO7))        # 12
     vars.append(vizdoom.get_game_variable(GameVariable.AMMO8))        # 13
     vars.append(vizdoom.get_game_variable(GameVariable.AMMO9))        # 14
-    vars.append(movement_reward(get_position(vizdoom), position_history)) # 15
+    vars.append(meters_walked(position_history)) # 15
 
     return vars
 
