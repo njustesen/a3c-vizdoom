@@ -81,26 +81,27 @@ def meters_walked(position_history):
 def get_position(vizdoom):
     return [vizdoom.get_game_variable(GameVariable.POSITION_X), vizdoom.get_game_variable(GameVariable.POSITION_Y)]
 
-def get_vizdoom_vars(vizdoom, position_history):
+def get_vizdoom_vars(vizdoom, position_history, normalize=True):
+    norm = 1 if normalize else 0
     vars = []
-    vars.append(vizdoom.get_game_variable(GameVariable.ARMOR))        # 0
-    vars.append(vizdoom.get_game_variable(GameVariable.HEALTH))       # 1
-    vars.append(vizdoom.get_game_variable(GameVariable.ON_GROUND))    # 2
-    vars.append(vizdoom.get_game_variable(GameVariable.DEATHCOUNT))   # 3
-    vars.append(vizdoom.get_game_variable(GameVariable.KILLCOUNT))    # 4
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO0))        # 5
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO1))        # 6
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO2))        # 7
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO3))        # 8
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO4))        # 9
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO5))        # 10
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO6))        # 11
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO7))        # 12
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO8))        # 13
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO9))        # 14
-    vars.append(meters_walked(position_history)) # 15
+    vars.append(vizdoom.get_game_variable(GameVariable.ARMOR) * 0.01)       # 0
+    vars.append(vizdoom.get_game_variable(GameVariable.HEALTH) * 0.01)      # 1
+    vars.append(vizdoom.get_game_variable(GameVariable.DEATHCOUNT) * 0.05)  # 2
+    vars.append(vizdoom.get_game_variable(GameVariable.KILLCOUNT) * 0.05)   # 3
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO0) * 0.01)       # 4
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO1) * 0.01)       # 5
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO2) * 0.01)       # 6
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO3) * 0.01)       # 7
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO4) * 0.01)       # 8
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO5) * 0.01)       # 9
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO6) * 0.01)       # 10
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO7) * 0.01)       # 11
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO8) * 0.01)       # 12
+    vars.append(vizdoom.get_game_variable(GameVariable.AMMO9) * 0.01)       # 13
+    vars.append(meters_walked(position_history) * 0.005)                    # 15
 
-    return vars
+    #return np.array(vars)
+    return np.array(vars)
 
 
 

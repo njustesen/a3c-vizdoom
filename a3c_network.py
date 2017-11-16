@@ -20,6 +20,7 @@ class AC_Network():
         with tf.variable_scope(scope):
             self.input_image = tf.placeholder(shape=[None, a3c_constants.OBSERVATION_SIZE], dtype=tf.float32)
             self.input_goals = tf.placeholder(shape=[None, a3c_constants.GOAL_SIZE], dtype=tf.float32)
+            self.input_vars = tf.placeholder(shape=[None, a3c_constants.GOAL_SIZE], dtype=tf.float32)
             self.imageIn = tf.reshape(self.input_image, shape=[-1, a3c_constants.FRAME_SIZE[0], a3c_constants.FRAME_SIZE[1], a3c_constants.FRAME_SIZE[2]])
 
             '''
@@ -44,7 +45,8 @@ class AC_Network():
                                      kernel_size=[3, 3], stride=[1, 1], padding='VALID')
 
             self.conv_flat = slim.flatten(self.conv3)
-            self.concat = tf.concat([self.conv_flat, self.input_goals], 1)
+            self.concat = tf.concat([self.conv_flat, self.input_goals, self.input_vars], 1)
+            #self.concat = tf.concat([self.conv_flat, self.input_goals], 1)
             self.hidden = slim.fully_connected(self.concat, 1024, activation_fn=tf.nn.elu)
 
             # Recurrent network for temporal dependencies

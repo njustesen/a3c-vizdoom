@@ -102,19 +102,11 @@ class Worker():
         self.env = game
 
         # Reward function - Shaped
-        self.goals = [1,1,0,0,100,1,1,1,1,1,1,1,1,1,1,1]
+        self.goals = np.array([1,1,0,100,1,1,1,1,1,1,1,1,1,1,1])
         # Reward function - Frags
         #self.frag_goals = [0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         # Reward function - movement
         #self.move_goals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
-
-    def get_goals(self):
-        '''
-        if random.uniform(0,1) >= 0.5:
-            return self.move_goals
-        return self.frag_goals
-        '''
-        self.goals
 
     def train(self, rollout, sess, gamma, bootstrap_value):
         rollout = np.array(rollout)
@@ -123,6 +115,7 @@ class Worker():
         rewards = rollout[:, 2]
         next_observations = rollout[:, 3]
         values = rollout[:, 5]
+        v = rollout[:, 6]
 
         # Here we take the rewards and values from the rollout, and use them to
         # generate the advantage and discounted returns.
@@ -137,11 +130,16 @@ class Worker():
         for i in range(len(observations)):
             goals.append(self.goals)
 
+        vars = []
+        for i in range(len(v)):
+            vars.append(v[i])
+
         # Update the global network using gradients from loss
         # Generate network statistics to periodically save
         feed_dict = {self.local_AC.target_v: discounted_rewards,
                      self.local_AC.input_image: np.vstack(observations),
                      self.local_AC.input_goals: goals,
+                     self.local_AC.input_vars: vars,
                      self.local_AC.actions: actions,
                      self.local_AC.advantages: advantages,
                      self.local_AC.state_in[0]: self.batch_rnn_state[0],
@@ -180,7 +178,6 @@ class Worker():
                 s = a3c_helpers.process_frame(s)
                 rnn_state = self.local_AC.state_init
                 self.batch_rnn_state = rnn_state
-                #goals = self.get_goals()
 
                 while self.env.is_episode_finished() == False:
 
@@ -193,6 +190,7 @@ class Worker():
                         [self.local_AC.policy, self.local_AC.value, self.local_AC.state_out],
                         feed_dict={self.local_AC.input_image: [s],
                                    self.local_AC.input_goals: [self.goals],
+                                   self.local_AC.input_vars: [last_vars],
                                    self.local_AC.state_in[0]: rnn_state[0],
                                    self.local_AC.state_in[1]: rnn_state[1]})
                     a = np.random.choice(a_dist[0], p=a_dist[0])
@@ -216,7 +214,7 @@ class Worker():
                     else:
                         s1 = s
 
-                    episode_buffer.append([s, a, r, s1, d, v[0, 0]])
+                    episode_buffer.append([s, a, r, s1, d, v[0, 0], last_vars])
                     episode_values.append(v[0, 0])
 
                     episode_reward += r
@@ -232,6 +230,7 @@ class Worker():
                         v1 = sess.run(self.local_AC.value,
                                       feed_dict={self.local_AC.input_image: [s],
                                                  self.local_AC.input_goals: [self.goals],
+                                                 self.local_AC.input_vars: [last_vars],
                                                  self.local_AC.state_in[0]: rnn_state[0],
                                                  self.local_AC.state_in[1]: rnn_state[1]})[0, 0]
                         v_l, p_l, e_l, g_n, v_n = self.train(episode_buffer, sess, gamma, v1)
