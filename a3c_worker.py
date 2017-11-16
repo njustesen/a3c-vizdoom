@@ -116,7 +116,7 @@ class Worker():
         '''
         self.goals
 
-    def train(self, rollout, sess, gamma, bootstrap_value, goals):
+    def train(self, rollout, sess, gamma, bootstrap_value):
         rollout = np.array(rollout)
         observations = rollout[:, 0]
         actions = rollout[:, 1]
@@ -132,6 +132,10 @@ class Worker():
         self.value_plus = np.asarray(values.tolist() + [bootstrap_value])
         advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
         advantages = a3c_helpers.discount(advantages, gamma)
+
+        goals = []
+        for i in range(len(observations)):
+            goals.append(self.goals)
 
         # Update the global network using gradients from loss
         # Generate network statistics to periodically save
@@ -176,7 +180,7 @@ class Worker():
                 s = a3c_helpers.process_frame(s)
                 rnn_state = self.local_AC.state_init
                 self.batch_rnn_state = rnn_state
-                goals = self.get_goals()
+                #goals = self.get_goals()
 
                 while self.env.is_episode_finished() == False:
 
@@ -188,7 +192,7 @@ class Worker():
                     a_dist, v, rnn_state = sess.run(
                         [self.local_AC.policy, self.local_AC.value, self.local_AC.state_out],
                         feed_dict={self.local_AC.input_image: [s],
-                                   self.local_AC.input_goals: [goals],
+                                   self.local_AC.input_goals: [self.goals],
                                    self.local_AC.state_in[0]: rnn_state[0],
                                    self.local_AC.state_in[1]: rnn_state[1]})
                     a = np.random.choice(a_dist[0], p=a_dist[0])
@@ -227,7 +231,7 @@ class Worker():
                         # value estimation.
                         v1 = sess.run(self.local_AC.value,
                                       feed_dict={self.local_AC.input_image: [s],
-                                                 self.local_AC.input_goals: [goals],
+                                                 self.local_AC.input_goals: [self.goals],
                                                  self.local_AC.state_in[0]: rnn_state[0],
                                                  self.local_AC.state_in[1]: rnn_state[1]})[0, 0]
                         v_l, p_l, e_l, g_n, v_n = self.train(episode_buffer, sess, gamma, v1)
