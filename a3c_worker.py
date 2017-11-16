@@ -109,9 +109,12 @@ class Worker():
         #self.move_goals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
     def get_goals(self):
+        '''
         if random.uniform(0,1) >= 0.5:
             return self.move_goals
         return self.frag_goals
+        '''
+        self.goals
 
     def train(self, rollout, sess, gamma, bootstrap_value, goals):
         rollout = np.array(rollout)
