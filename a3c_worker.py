@@ -114,6 +114,7 @@ class Worker():
         self.env = game
 
         # Reward function - Shaped
+        # TODO: Should be global
         self.event_memory = a3c_dynamic_rewards.EventMemory(constants.EVENTS, constants.ALPHA)
 
     def train(self, rollout, sess, gamma, bootstrap_value):
