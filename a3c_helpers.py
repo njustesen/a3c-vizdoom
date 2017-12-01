@@ -81,31 +81,65 @@ def meters_walked(position_history):
 def get_position(vizdoom):
     return [vizdoom.get_game_variable(GameVariable.POSITION_X), vizdoom.get_game_variable(GameVariable.POSITION_Y)]
 
-def get_vizdoom_vars(vizdoom, position_history, normalize=True):
-    norm = 1 if normalize else 0
+def get_vizdoom_vars(vizdoom, position_history):
     vars = []
-    vars.append(vizdoom.get_game_variable(GameVariable.ARMOR) * 0.01)       # 0
-    vars.append(vizdoom.get_game_variable(GameVariable.HEALTH) * 0.01)      # 1
-    vars.append(vizdoom.get_game_variable(GameVariable.DEATHCOUNT) * 0.05)  # 2
-    vars.append(vizdoom.get_game_variable(GameVariable.KILLCOUNT) * 0.05)   # 3
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO0) * 0.01)       # 4
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO1) * 0.01)       # 5
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO2) * 0.01)       # 6
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO3) * 0.01)       # 7
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO4) * 0.01)       # 8
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO5) * 0.01)       # 9
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO6) * 0.01)       # 10
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO7) * 0.01)       # 11
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO8) * 0.01)       # 12
-    vars.append(vizdoom.get_game_variable(GameVariable.AMMO9) * 0.01)       # 13
-    vars.append(meters_walked(position_history) * 0.005)                    # 15
+    vars.append(meters_walked(position_history))                     # 0
+    vars.append(vizdoom.get_game_variable(GameVariable.HEALTH))      # 1
+    vars.append(vizdoom.get_game_variable(GameVariable.ARMOR))       # 2
+    vars.append(vizdoom.get_game_variable(GameVariable.SELECTED_WEAPON_AMMO))       # 3
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON0))       # 4
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON1))       # 5
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON2))       # 6
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON3))       # 7
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON4))       # 8
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON5))       # 9
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON6))       # 10
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON7))       # 11
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON8))       # 12
+    vars.append(vizdoom.get_game_variable(GameVariable.WEAPON9))    # 13
+    vars.append(vizdoom.get_game_variable(GameVariable.KILLCOUNT))   # 14
+    vars.append(vizdoom.get_game_variable(GameVariable.DEATHCOUNT))  # 15
 
-    #return np.array(vars)
     return np.array(vars)
 
 
+def get_events(vars, last_vars):
+    events = np.zeros(a3c_constants.EVENTS)
 
+    # If died -> no event
+    if vars[15] > last_vars[15]:
+        return events
 
+    # 0. Movement
+    if vars[0] > last_vars[0]:
+        events[0] = 1;
+
+    # 1. Health increase
+    if vars[1] > last_vars[1]:
+        events[1] = 1;
+
+    # 2. Armor increase
+    if vars[2] > last_vars[2]:
+        events[2] = 1;
+
+    # 3. Ammo decrease
+    if vars[3] < last_vars[3]:
+        events[3] = 1;
+
+    # 4. Ammo increase
+    if vars[3] > last_vars[3]:
+        events[4] = 1;
+
+    # 5-14. Weapons 0-9
+    for i in range(4,14):
+        if vars[i] > last_vars[i]:
+            events[i+1] = 1;
+
+    # 15. Kill increase
+    if vars[14] > last_vars[14]:
+        events[15] = 1;
+
+    return events
 
 
 

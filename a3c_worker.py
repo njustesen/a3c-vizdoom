@@ -11,6 +11,7 @@ from time import time, sleep
 import a3c_helpers
 import a3c_network
 import a3c_constants as constants
+import a3c_dynamic_rewards
 
 from helper import *
 from vizdoom import *
@@ -30,6 +31,7 @@ class Worker():
         self.episode_rewards = []
         self.episode_lengths = []
         self.episode_mean_values = []
+        self.episode_events = []
         self.summary_writer = tf.summary.FileWriter("train_" + str(self.number))
         self.genome = None
 
@@ -75,6 +77,16 @@ class Worker():
         game.add_available_game_variable(GameVariable.AMMO7)
         game.add_available_game_variable(GameVariable.AMMO8)
         game.add_available_game_variable(GameVariable.AMMO9)
+        game.add_available_game_variable(GameVariable.WEAPON0)
+        game.add_available_game_variable(GameVariable.WEAPON1)
+        game.add_available_game_variable(GameVariable.WEAPON2)
+        game.add_available_game_variable(GameVariable.WEAPON3)
+        game.add_available_game_variable(GameVariable.WEAPON4)
+        game.add_available_game_variable(GameVariable.WEAPON5)
+        game.add_available_game_variable(GameVariable.WEAPON6)
+        game.add_available_game_variable(GameVariable.WEAPON7)
+        game.add_available_game_variable(GameVariable.WEAPON8)
+        game.add_available_game_variable(GameVariable.WEAPON9)
         game.add_available_game_variable(GameVariable.POSITION_X)
         game.add_available_game_variable(GameVariable.POSITION_Y)
         game.add_available_game_variable(GameVariable.ON_GROUND)
@@ -102,11 +114,7 @@ class Worker():
         self.env = game
 
         # Reward function - Shaped
-        self.goals = np.array([1,1,0,100,1,1,1,1,1,1,1,1,1,1,1])
-        # Reward function - Frags
-        #self.frag_goals = [0, 0, 0, -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        # Reward function - movement
-        #self.move_goals = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+        self.event_memory = a3c_dynamic_rewards.EventMemory(constants.EVENTS, constants.ALPHA)
 
     def train(self, rollout, sess, gamma, bootstrap_value):
         rollout = np.array(rollout)
@@ -126,9 +134,11 @@ class Worker():
         advantages = rewards + gamma * self.value_plus[1:] - self.value_plus[:-1]
         advantages = a3c_helpers.discount(advantages, gamma)
 
+        '''
         goals = []
         for i in range(len(observations)):
             goals.append(self.goals)
+        '''
 
         vars = []
         for i in range(len(v)):
@@ -138,7 +148,7 @@ class Worker():
         # Generate network statistics to periodically save
         feed_dict = {self.local_AC.target_v: discounted_rewards,
                      self.local_AC.input_image: np.vstack(observations),
-                     self.local_AC.input_goals: goals,
+                     #self.local_AC.input_goals: goals,
                      self.local_AC.input_vars: vars,
                      self.local_AC.actions: actions,
                      self.local_AC.advantages: advantages,
@@ -179,18 +189,21 @@ class Worker():
                 rnn_state = self.local_AC.state_init
                 self.batch_rnn_state = rnn_state
 
+                events = np.zeros(constants.EVENTS)
+
                 while self.env.is_episode_finished() == False:
 
                     # Respawn if dead
                     if self.env.is_player_dead():
                         self.env.respawn_player()
+                        continue
 
                     # Take an action using probabilities from policy network output.
                     a_dist, v, rnn_state = sess.run(
                         [self.local_AC.policy, self.local_AC.value, self.local_AC.state_out],
                         feed_dict={self.local_AC.input_image: [s],
-                                   self.local_AC.input_goals: [self.goals],
-                                   self.local_AC.input_vars: [last_vars],
+                                   #self.local_AC.input_goals: [self.goals],
+                                   self.local_AC.input_vars: [np.multiply(0.01, last_vars)],
                                    self.local_AC.state_in[0]: rnn_state[0],
                                    self.local_AC.state_in[1]: rnn_state[1]})
                     a = np.random.choice(a_dist[0], p=a_dist[0])
@@ -201,8 +214,9 @@ class Worker():
 
                     # Evaluate reward based on vars and reward function
                     vars = a3c_helpers.get_vizdoom_vars(self.env, position_history)
-                    delta_vars = np.subtract(vars, last_vars)
-                    rewards = np.multiply(self.goals, delta_vars)
+                    events_now = a3c_helpers.get_events(vars, last_vars)
+                    events = np.add(events, events_now)
+                    rewards = self.event_memory.novelty_reward(events)
                     r = np.sum(rewards)
                     last_vars = vars
 
@@ -229,7 +243,7 @@ class Worker():
                         # value estimation.
                         v1 = sess.run(self.local_AC.value,
                                       feed_dict={self.local_AC.input_image: [s],
-                                                 self.local_AC.input_goals: [self.goals],
+                                                 #self.local_AC.input_goals: [self.goals],
                                                  self.local_AC.input_vars: [last_vars],
                                                  self.local_AC.state_in[0]: rnn_state[0],
                                                  self.local_AC.state_in[1]: rnn_state[1]})[0, 0]
@@ -238,6 +252,10 @@ class Worker():
                         sess.run(self.update_local_ops)
                     if d == True:
                         break
+
+                # Update event memory
+                self.event_memory.record_events(events)
+                self.episode_events.append(events)
 
                 self.episode_rewards.append(episode_reward)
                 self.episode_lengths.append(episode_step_count)
@@ -248,7 +266,7 @@ class Worker():
                     v_l, p_l, e_l, g_n, v_n = self.train(episode_buffer, sess, gamma, 0.0)
 
                 # Periodically save gifs of episodes, model parameters, and summary statistics.
-                if episode_count != 0 and episode_count % 5 == 0:
+                if episode_count != 0 and episode_count % 1 == 0:
                     if episode_count % 50 == 0 and self.name == 'worker_0':
                         saver.save(sess, self.model_path + '/model-' + str(episode_count) + '.cptk')
                         print("Saved Model")
@@ -256,20 +274,29 @@ class Worker():
                     mean_reward = np.mean(self.episode_rewards[-5:])
                     mean_length = np.mean(self.episode_lengths[-5:])
                     mean_value = np.mean(self.episode_mean_values[-5:])
+                    events_sum = []
+                    for e in self.episode_events[-5:]:
+                        events_sum.append(np.sum(e))
+                    mean_events = np.mean(events_sum)
+
                     summary = tf.Summary()
                     summary.value.add(tag='Perf/Reward', simple_value=float(mean_reward))
                     summary.value.add(tag='Perf/Length', simple_value=float(mean_length))
                     summary.value.add(tag='Perf/Value', simple_value=float(mean_value))
+                    summary.value.add(tag='Events', simple_value=float(mean_events))
+                    # TODO: Add more about individual event
                     summary.value.add(tag='Losses/Value Loss', simple_value=float(v_l))
                     summary.value.add(tag='Losses/Policy Loss', simple_value=float(p_l))
                     summary.value.add(tag='Losses/Entropy', simple_value=float(e_l))
                     summary.value.add(tag='Losses/Grad Norm', simple_value=float(g_n))
                     summary.value.add(tag='Losses/Var Norm', simple_value=float(v_n))
+
                     self.summary_writer.add_summary(summary, episode_count)
 
                     self.summary_writer.flush()
 
                     print("EPISODE: " + str(episode_count) + " | MEAN REWARD: " + str(mean_reward) + " | MEAN VALUE: " + str(mean_value))
+                    print("EVENTS: " + str(self.event_memory.events));
 
                 if self.name == 'worker_0':
                     sess.run(self.increment)
@@ -317,7 +344,7 @@ class Worker():
                 a_dist, v, rnn_state = sess.run(
                     [self.local_AC.policy, self.local_AC.value, self.local_AC.state_out],
                     feed_dict={self.local_AC.input_image: [s],
-                               self.local_AC.input_goals: [self.goals],
+                               #self.local_AC.input_goals: [self.goals],
                                self.local_AC.state_in[0]: rnn_state[0],
                                self.local_AC.state_in[1]: rnn_state[1]})
                 a = np.random.choice(a_dist[0], p=a_dist[0])
