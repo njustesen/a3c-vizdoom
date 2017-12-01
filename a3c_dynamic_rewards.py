@@ -6,6 +6,7 @@ class EventMemory:
         self.n = n
         self.alpha = alpha
         self.events = np.ones(n)
+        # TODO: Should contain sum and number of updates. So that statistics can be calculated from it.
 
     def record_events(self, events):
         dif = np.subtract(events, self.events)
