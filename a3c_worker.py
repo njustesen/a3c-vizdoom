@@ -11,7 +11,7 @@ from time import time, sleep
 import a3c_helpers
 import a3c_network
 import a3c_constants as constants
-import a3c_dynamic_rewards
+import event_memory
 
 from helper import *
 from vizdoom import *
@@ -21,7 +21,7 @@ from time import sleep
 from time import time
 
 class Worker():
-    def __init__(self, game, name, trainer, model_path, global_episodes):
+    def __init__(self, game, name, trainer, model_path, global_episodes, event_memory):
         self.name = "worker_" + str(name)
         self.number = name
         self.model_path = model_path
@@ -33,8 +33,7 @@ class Worker():
         self.episode_mean_values = []
         self.episode_events = []
         self.summary_writer = tf.summary.FileWriter("train_" + str(self.number))
-        self.genome = None
-
+        self.event_memory = event_memory
         self.bots = constants.BOTS
 
         # Create the local copy of the network and the tensorflow op to copy global paramters to local network
@@ -113,9 +112,6 @@ class Worker():
         # End Doom set-up
         self.env = game
 
-        # Reward function - Shaped
-        # TODO: Should be global
-        self.event_memory = a3c_dynamic_rewards.EventMemory(constants.EVENTS, constants.ALPHA)
 
     def train(self, rollout, sess, gamma, bootstrap_value):
         rollout = np.array(rollout)
@@ -267,7 +263,7 @@ class Worker():
                     v_l, p_l, e_l, g_n, v_n = self.train(episode_buffer, sess, gamma, 0.0)
 
                 # Periodically save gifs of episodes, model parameters, and summary statistics.
-                if episode_count != 0 and episode_count % 1 == 0:
+                if episode_count != 0 and episode_count % 5 == 0:
                     if episode_count % 50 == 0 and self.name == 'worker_0':
                         saver.save(sess, self.model_path + '/model-' + str(episode_count) + '.cptk')
                         print("Saved Model")
@@ -275,16 +271,18 @@ class Worker():
                     mean_reward = np.mean(self.episode_rewards[-5:])
                     mean_length = np.mean(self.episode_lengths[-5:])
                     mean_value = np.mean(self.episode_mean_values[-5:])
-                    events_sum = []
-                    for e in self.episode_events[-5:]:
-                        events_sum.append(np.sum(e))
-                    mean_events = np.mean(events_sum)
 
                     summary = tf.Summary()
                     summary.value.add(tag='Perf/Reward', simple_value=float(mean_reward))
                     summary.value.add(tag='Perf/Length', simple_value=float(mean_length))
                     summary.value.add(tag='Perf/Value', simple_value=float(mean_value))
-                    summary.value.add(tag='Events', simple_value=float(mean_events))
+
+                    s = ""
+                    means = np.mean(self.event_memory.events[-5:], axis=0)
+                    for i in range(self.event_memory.n):
+                        s += str(means[i]) + "  "
+                        summary.value.add(tag='Event ' + str(i), simple_value=float(means[i]))
+
                     # TODO: Add more about individual event
                     summary.value.add(tag='Losses/Value Loss', simple_value=float(v_l))
                     summary.value.add(tag='Losses/Policy Loss', simple_value=float(p_l))
@@ -297,7 +295,7 @@ class Worker():
                     self.summary_writer.flush()
 
                     print("EPISODE: " + str(episode_count) + " | MEAN REWARD: " + str(mean_reward) + " | MEAN VALUE: " + str(mean_value))
-                    print("EVENTS: " + str(self.event_memory.events));
+                    print(s)
 
                 if self.name == 'worker_0':
                     sess.run(self.increment)
