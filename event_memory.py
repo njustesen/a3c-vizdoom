@@ -17,15 +17,16 @@ class EventMemory:
         r = np.multiply(neg_norm, events)
         return np.sum(r)
 
+def normalize(v):
+    norm = np.linalg.norm(v)
+    if norm == 0:
+       return v
+    return v / norm
+
 '''
 event_memory = EventMemory(4)
-event_memory.record_events([1,2,3,45])
-event_memory.record_events([2,2,3,44])
-event_memory.record_events([3,2,3,43])
-event_memory.record_events([4,2,3,42])
-event_memory.record_events([5,2,3,41])
-
-for i in range(4):
-    mean = np.mean(event_memory.events[-5:], axis=0)
-    print(mean)
+event_memory.record_events([0.1,1,1,10])
+print(event_memory.novelty_reward([1,0,0,0]))
+print(event_memory.novelty_reward([0,1,0,0]))
+print(event_memory.novelty_reward([0,0,0,1]))
 '''

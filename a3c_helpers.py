@@ -97,7 +97,7 @@ def get_vizdoom_vars(vizdoom, position_history):
     vars.append(vizdoom.get_game_variable(GameVariable.WEAPON7))       # 11
     vars.append(vizdoom.get_game_variable(GameVariable.WEAPON8))       # 12
     vars.append(vizdoom.get_game_variable(GameVariable.WEAPON9))    # 13
-    vars.append(vizdoom.get_game_variable(GameVariable.KILLCOUNT))   # 14
+    vars.append(vizdoom.get_game_variable(GameVariable.FRAGCOUNT))   # 14
     vars.append(vizdoom.get_game_variable(GameVariable.DEATHCOUNT))  # 15
 
     return np.array(vars)
