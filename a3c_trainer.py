@@ -6,10 +6,10 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import scipy.signal
 import a3c_helpers
-from a3c_network_novelty import AC_Network
-from a3c_worker_novelty import Worker
-#from a3c_network import AC_Network
-#from a3c_worker import Worker
+#from a3c_network_novelty import AC_Network
+#from a3c_worker_novelty import Worker
+from a3c_network import AC_Network
+from a3c_worker import Worker
 import a3c_constants as constants
 
 from event_memory import EventMemory
@@ -41,14 +41,14 @@ with tf.device("/cpu:0"):
     trainer = tf.train.AdamOptimizer(learning_rate=1e-4)
     master_network = AC_Network('global', None)  # Generate global network
     num_workers = multiprocessing.cpu_count()  # Set workers to number of available CPU threads
-    event_memory = EventMemory(constants.EVENTS)
+    event_memory = EventMemory(constants.EVENTS, constants.EVENT_CAPACITY)
 
     if constants.MAX_THREADS != -1:
         num_workers = min(num_workers, constants.MAX_THREADS) # Set workers to max threads
     workers = []
     # Create worker classes
     for i in range(num_workers):
-        workers.append(Worker(DoomGame(), i, trainer, model_path, global_episodes))
+        workers.append(Worker(DoomGame(), i, trainer, model_path, global_episodes, event_memory))
     saver = tf.train.Saver(max_to_keep=1)
 
 with tf.Session() as sess:

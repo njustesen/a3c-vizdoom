@@ -188,12 +188,12 @@ class Worker():
 
                 events = np.zeros(constants.EVENTS)
 
-                while self.env.is_episode_finished() == False:
+                # Respawn if dead
+                if self.env.is_player_dead():
+                    self.env.respawn_player()
+                    continue
 
-                    # Respawn if dead
-                    if self.env.is_player_dead():
-                        self.env.respawn_player()
-                        continue
+                while self.env.is_episode_finished() == False and self.env.is_player_dead() == False:
 
                     # Take an action using probabilities from policy network output.
                     a_dist, v, rnn_state = sess.run(
@@ -212,9 +212,8 @@ class Worker():
                     # Evaluate reward based on vars and reward function
                     vars = a3c_helpers.get_vizdoom_vars(self.env, position_history)
                     events_now = a3c_helpers.get_events(vars, last_vars)
+                    r = self.event_memory.novelty_reward(events_now)
                     events = np.add(events, events_now)
-                    rewards = self.event_memory.novelty_reward(events)
-                    r = np.sum(rewards)
                     last_vars = vars
 
                     d = self.env.is_episode_finished()
@@ -278,9 +277,14 @@ class Worker():
                     summary.value.add(tag='Perf/Value', simple_value=float(mean_value))
 
                     s = ""
-                    means = np.mean(self.event_memory.events[-5:], axis=0)
-                    for i in range(self.event_memory.n):
-                        s += str(means[i]) + "  "
+                    event_sums = []
+                    for episode in self.episode_events[-5:]:
+                        episode_sum = np.sum(episode, axis=0)
+                        event_sums.append(episode_sum)
+
+                    means = np.mean(event_sums, axis=0)
+                    for i in range(constants.EVENTS):
+                        s += str(means[i]) + " | "
                         summary.value.add(tag='Event ' + str(i), simple_value=float(means[i]))
 
                     # TODO: Add more about individual event
