@@ -14,7 +14,7 @@ class EventMemory:
             self.events.append(events)
         else:
             self.events[self.idx] = events
-            if self.idx < self.capacity:
+            if self.idx + 1 < self.capacity:
                 self.idx += 1
             else:
                 self.idx = 0
