@@ -193,7 +193,7 @@ class Worker():
                     self.env.respawn_player()
                     continue
 
-                while self.env.is_episode_finished() == False and self.env.is_player_dead() == False:
+                while not (self.env.is_episode_finished() or self.env.is_player_dead()):
 
                     # Take an action using probabilities from policy network output.
                     a_dist, v, rnn_state = sess.run(

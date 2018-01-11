@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="d7be08bc-4354-4d61-b19d-240c3c2ffa45" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/_vizdoom.ini" afterPath="$PROJECT_DIR$/_vizdoom.ini" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_constants.py" afterPath="$PROJECT_DIR$/a3c_constants.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_trainer.py" afterPath="$PROJECT_DIR$/a3c_trainer.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/a3c_worker.py" afterPath="$PROJECT_DIR$/a3c_worker.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/event_memory.py" afterPath="$PROJECT_DIR$/event_memory.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -42,11 +38,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="a3c_constants.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="a3c_constants.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/a3c_constants.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="34" column="22" lean-forward="false" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
+            <state relative-caret-position="324">
+              <caret line="24" column="19" lean-forward="true" selection-start-line="24" selection-start-column="19" selection-end-line="24" selection-end-column="19" />
               <folding>
                 <element signature="e#55#76#0" expanded="true" />
               </folding>
@@ -78,11 +74,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="a3c_worker.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="a3c_worker.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/a3c_worker.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="347">
-              <caret line="288" column="0" lean-forward="true" selection-start-line="288" selection-start-column="0" selection-end-line="288" selection-end-column="0" />
+            <state relative-caret-position="257">
+              <caret line="196" column="0" lean-forward="true" selection-start-line="196" selection-start-column="0" selection-end-line="196" selection-end-column="0" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -167,10 +163,10 @@
         <option value="$PROJECT_DIR$/stats/event_rewards.dat" />
         <option value="$PROJECT_DIR$/stats/rewards.dat" />
         <option value="$PROJECT_DIR$/stats/ev.dat" />
-        <option value="$PROJECT_DIR$/a3c_worker.py" />
         <option value="$PROJECT_DIR$/a3c_trainer.py" />
         <option value="$PROJECT_DIR$/event_memory.py" />
         <option value="$PROJECT_DIR$/a3c_constants.py" />
+        <option value="$PROJECT_DIR$/a3c_worker.py" />
       </list>
     </option>
   </component>
@@ -955,22 +951,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3c_worker.py">
+    <entry file="file://$PROJECT_DIR$/a3c_constants.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="347">
-          <caret line="288" column="0" lean-forward="true" selection-start-line="288" selection-start-column="0" selection-end-line="288" selection-end-column="0" />
+        <state relative-caret-position="324">
+          <caret line="24" column="19" lean-forward="true" selection-start-line="24" selection-start-column="19" selection-end-line="24" selection-end-column="19" />
           <folding>
-            <element signature="e#0#16#0" expanded="true" />
+            <element signature="e#55#76#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/a3c_constants.py">
+    <entry file="file://$PROJECT_DIR$/a3c_worker.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="34" column="22" lean-forward="false" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
+        <state relative-caret-position="257">
+          <caret line="196" column="0" lean-forward="true" selection-start-line="196" selection-start-column="0" selection-end-line="196" selection-end-column="0" />
           <folding>
-            <element signature="e#55#76#0" expanded="true" />
+            <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
