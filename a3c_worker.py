@@ -277,15 +277,10 @@ class Worker():
                     summary.value.add(tag='Perf/Value', simple_value=float(mean_value))
 
                     s = ""
-                    event_sums = []
-                    for episode in self.episode_events[-5:]:
-                        episode_sum = np.sum(episode, axis=0)
-                        event_sums.append(episode_sum)
-
-                    means = np.mean(event_sums, axis=0)
+                    event_means = np.mean(self.episode_events[-5:], axis=0)
                     for i in range(constants.EVENTS):
-                        s += str(means[i]) + " | "
-                        summary.value.add(tag='Event ' + str(i), simple_value=float(means[i]))
+                        s += str(event_means[i]) + " | "
+                        summary.value.add(tag='Event ' + str(i), simple_value=float(event_means[i]))
 
                     # TODO: Add more about individual event
                     summary.value.add(tag='Losses/Value Loss', simple_value=float(v_l))
